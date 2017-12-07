@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# PROVIDE: couchpotato
+# REQUIRE: NETWORKING SERVERS DAEMON ldconfig resolv
+#
+# Add the following lines to /etc/rc.conf.local or /etc/rc.conf
+# to enable this service:
+#
+# couchpotato_enable (bool):	Set to NO by default.
+#			Set it to YES to enable it.
+# couchpotato_data_dir:	Directory where couchpotato configuration
+#			data is stored.
+#			Default: /var/db/couchpotato
+# couchpotato_user:	The user account couchpotato daemon runs as what
+#			you want it to be. It uses 'media' user by
+#			default. Do not sets it as empty or it will run
+#			as root.
+# couchpotato_group:	The group account couchpotato daemon runs as what
+#			you want it to be. It uses 'media' group by
+#			default. Do not sets it as empty or it will run
+#			as wheel.
+
+. /etc/rc.subr
+name="couchpotato"
+rcvar="${name}_enable"
+load_rc_config $name
+
+: ${couchpotato_enable:="NO"}
+: ${couchpotato_user:="media"}
+: ${couchpotato_group:="media"}
+: ${couchpotato_dir:="/usr/local/share/couchpotato"}
+: ${couchpotato_data_dir:="/usr/local/couchpotato"}
+
+pidfile="/var/run/couchpotato/couchpotato.pid"
+command="/usr/local/bin/python2.7"
+command_args="$couchpotato_dir/CouchPotato.py --config_file $couchpotato_data_dir/config.ini --data_dir $couchpotato_data_dir --pid_file $pidfile --daemon"
+
+start_precmd="couchpotato_prestart"
+couchpotato_prestart() {
+	export LC_ALL=en_US.UTF-8
+	export LANG=en_US.UTF-8
+
+	if [ ! -d ${pidfile%/*} ]; then
+		install -d -o ${couchpotato_user} -g ${couchpotato_group} ${pidfile%/*}
+	fi
+
+	if [ ! -d ${couchpotato_data_dir} ]; then
+		install -d -o ${couchpotato_user} -g ${couchpotato_group} ${couchpotato_data_dir}
+	fi
+}
+
+run_rc_command "$1"
