@@ -6,19 +6,17 @@
 # Add the following lines to /etc/rc.conf.local or /etc/rc.conf
 # to enable this service:
 #
-# mylar_enable (bool):	Set to NO by default.
-#			Set it to YES to enable it.
-# mylar_data_dir:	Directory where mylar configuration
-#			data is stored.
-#			Default: /usr/pbi/mylar-amd64/etc/mylar
-# mylar_user:		The user account mylar daemon runs as what
-#			you want it to be. It uses 'media' user by
-#			default. Do not sets it as empty or it will run
-#			as root.
-# mylar_group:		The group account mylar daemon runs as what
-#			you want it to be. It uses 'media' group by
-#			default. Do not sets it as empty or it will run
-#			as wheel.
+# mylar_enable (bool):  Set to NO by default.
+#                       Set it to YES to enable it.
+# mylar_data_dir:       Directory where mylar configuration
+#                       data is stored.
+#                       Default: /usr/local/share/mylar
+# mylar_user:           The user account mylar daemon runs as what
+#                       you want it to be.
+#                       Default: media
+# mylar_group:          The group account mylar daemon runs as what
+#                       you want it to be.
+#                       Default: media
 
 . /etc/rc.subr
 name="mylar"

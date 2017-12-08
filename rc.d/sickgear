@@ -6,22 +6,20 @@
 # Add the following lines to /etc/rc.conf.local or /etc/rc.conf
 # to enable this service:
 #
-# sickgear_enable (bool):	Set to NO by default.
-#							Set it to YES to enable it.
+# sickgear_enable (bool):   Set to NO by default.
+#                           Set it to YES to enable it.
 #
-# sickgear_data_dir:		Directory where sickgear configuration
-#							data is stored.
-#							Default: /usr/local/sickgear
+# sickgear_data_dir:        Directory where sickgear configuration
+#                           data is stored.
+#                           Default: /usr/local/sickgear
 #
-# sickgear_user:			The user account sickgear daemon runs as what
-#							you want it to be. It uses 'media' user by
-#							default. Do not sets it as empty or it will run
-#							as root.
+# sickgear_user:            The user account sickgear daemon runs as what
+#                           you want it to be.
+#                           Default: media
 #
-# sickgear_group:			The group account sickgear daemon runs as what
-#							you want it to be. It uses 'media' group by
-#							default. Do not sets it as empty or it will run
-#							as wheel.
+# sickgear_group:           The group account sickgear daemon runs as what
+#                           you want it to be.
+#                           Default: media
 
 . /etc/rc.subr
 name="sickgear"
