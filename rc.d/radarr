@@ -35,6 +35,7 @@ load_rc_config $name
 : ${radarr_dir:="/usr/local/share/radarr"}
 : ${radarr_data_dir:="/var/db/radarr"}
 
+pidfile="${radarr_data_dir}/nzbdrone.pid"
 command="/usr/sbin/daemon"
 procname="/usr/local/bin/mono"
 command_args="-f ${procname} ${radarr_dir}/Radarr.exe --data=${radarr_data_dir} --nobrowser"
