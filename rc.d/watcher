@@ -34,7 +34,7 @@ load_rc_config ${name}
 : ${watcher_pidfile="/var/run/watcher3/watcher.pid"}
 
 pidfile=${watcher_pidfile}
-command="/usr/local/bin/python2.7"
+command="/usr/local/bin/python3"
 command_args="${watcher_dir}/watcher.py --daemon --conf $watcher_data_dir/config.cfg --db $watcher_data_dir/database.sqlite --pid ${pidfile}"
 
 start_precmd="watcher_prestart"
