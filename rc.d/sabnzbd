@@ -17,7 +17,7 @@
 #                        you want it to be. It uses '_sabnzbd' group by
 #                        default. Do not sets it as empty or it will run
 #                        as wheel.
-# sabnzbd_dir:           Directory where sabnzbd configuration
+# sabnzbd_dir:           Directory where sabnzbd installation
 #                        data is stored.
 #                        Default: /usr/local/sabnzbd
 # sabnzbd_data_dir:      Directory where sabnzbd configuration
