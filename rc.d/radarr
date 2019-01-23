@@ -20,7 +20,7 @@
 #                   empty string as this will cause the daemon to run with group wheel.
 #                   Default: media
 # radarr_dir:       Directory where radarr installation is stored.
-#                   Default: /usr/local/share/radarr
+#                   Default: /usr/local/share/Radarr
 # radarr_data_dir:  Directory where radarr configuration data is stored.
 #                   Default: /var/db/radarr
 
@@ -32,7 +32,7 @@ load_rc_config $name
 : ${radarr_enable:="NO"}
 : ${radarr_user:="radarr"}
 : ${radarr_group:="radarr"}
-: ${radarr_dir:="/usr/local/share/radarr"}
+: ${radarr_dir:="/usr/local/share/Radarr"}
 : ${radarr_data_dir:="/var/db/radarr"}
 
 pidfile="${radarr_data_dir}/nzbdrone.pid"
