@@ -1,3 +1,7 @@
+## updatesab.sh
+
+Script to update SABnzbd from source.
+
 ## zpoolscan.sh
 
 Script to monitor zpool health and turn on the drive failure led of failed disks on Supermicro SAS2 Backplane.

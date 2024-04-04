@@ -7,23 +7,20 @@
 # Add the following lines to /etc/rc.conf.local or /etc/rc.conf
 # to enable this service:
 #
-# sabnzbd_enable (bool): Set to NO by default.
-#                        Set it to YES to enable it.
-# sabnzbd_user:          The user account sabnzbd daemon runs as what
-#                        you want it to be. It uses '_sabnzbd' user by
-#                        default. Do not sets it as empty or it will run
-#                        as root.
-# sabnzbd_group:         The group account sabnzbd daemon runs as what
-#                        you want it to be. It uses '_sabnzbd' group by
-#                        default. Do not sets it as empty or it will run
-#                        as wheel.
-# sabnzbd_dir:           Directory where sabnzbd installation
-#                        data is stored.
-#                        Default: /usr/local/sabnzbd
-# sabnzbd_data_dir:      Directory where sabnzbd configuration
-#                        data is stored.
-#                        Default: /var/db/sabnzbd
-# sabnzbd_pidfile:       Set the location of the sabnzbd pidfile
+# sabnzbd_enable (bool):        Set to NO by default.
+#                       Set it to YES to enable it.
+# sabnzbd_conf_dir:     Directory where sabnzbd configuration
+#                       data is stored.
+#                       Default: /usr/local/sabnzbd
+# sabnzbd_user:         The user account sabnzbd daemon runs as what
+#                       you want it to be. It uses '_sabnzbd' user by
+#                       default. Do not sets it as empty or it will run
+#                       as root.
+# sabnzbd_group:        The group account sabnzbd daemon runs as what
+#                       you want it to be. It uses '_sabnzbd' group by
+#                       default. Do not sets it as empty or it will run
+#                       as wheel.
+# sabnzbd_pidfile:      Set the location of the sabnzbd pidfile
 
 . /etc/rc.subr
 
@@ -32,147 +29,26 @@ rcvar=sabnzbd_enable
 load_rc_config ${name}
 
 : ${sabnzbd_enable:=NO}
-: ${sabnzbd_user:="media"}
-: ${sabnzbd_group:="media"}
-: ${sabnzbd_dir:="/usr/local/share/sabnzbd"}
-: ${sabnzbd_data_dir:="/var/db/sabnzbd"}
+: ${sabnzbd_user:=_sabnzbd}
+: ${sabnzbd_group:=_sabnzbd}
+: ${sabnzbd_conf_dir="/var/db/sabnzbd"}
 : ${sabnzbd_pidfile:="/var/run/sabnzbd/sabnzbd.pid"}
 
 pidfile=${sabnzbd_pidfile}
 
 start_precmd="${name}_prestart"
-pidfile="/var/run/sabnzbd/sabnzbd.pid"
-command="/usr/local/bin/python2.7"
-command_args="$sabnzbd_dir/SABnzbd/SABnzbd.py --daemon -f $sabnzbd_data_dir/sabnzbd.ini --pidfile $pidfile -d -b 0"
+command="/usr/local/bin/python3.9"
+command_args="/usr/local/share/sabnzbd/SABnzbd.py --daemon -f ${sabnzbd_conf_dir}/sabnzbd.ini --pidfile ${pidfile}"
 
-sabnzbd_prestart() {
-    PATH=${PATH}:/usr/local/bin:/usr/local/sbin
-    export LANG="en_US.UTF-8"
-    for sabdir in ${sabnzbd_dir} ${pidfile%/*}; do
-        if [ ! -d "${sabdir}" ]; then
-            install -d -o ${sabnzbd_user} -g ${sabnzbd_group} ${sabdir}
-        fi
-    done
-}
-
-extra_commands="update reinstall"
-update_cmd="${name}_update"
-reinstall_cmd="${name}_reinstall"
-
-sabnzbd_update() {
-    START_UPDATE="0"
-    PATH=${PATH}:/usr/local/bin:/usr/local/sbin
-
-    if [ -f ${sabnzbd_dir}/SABnzbd/PKG-INFO ]; then
-        LOCAL_VERSION=$(cat ${sabnzbd_dir}/SABnzbd/PKG-INFO | grep ^Version | awk '{print $2}' | tr -d '\r\n')
-        LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/sabnzbd/sabnzbd/releases/latest)
-        LATEST_VERSION=$(echo $LATEST_RELEASE | sed 's/.*"tag_name":[^"]*"\([^"]*\)".*/\1/')
-
-        if [ "${LATEST_VERSION}" != "${LOCAL_VERSION}" ]; then
-            START_UPDATE="1"
-        fi
-
-        if [ "${START_UPDATE}" = "0" ]; then
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m No update required."
-        else
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m New version found."
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Upgrading [1m${LOCAL_VERSION}[0m to [1m${LATEST_VERSION}[0m."
-            if ls $sabnzbd_dir/SABnzbd-* 1> /dev/null 2>&1; then
-                echo ""
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Removing previous SABnzbd Backup."
-                rm -rf $sabnzbd_dir/SABnzbd-* 2>&1
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-            fi
-            if [ -n "$pidfile" ]; then
-                echo ""
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Stopping SABnzbd."
-                service ${name} stop >/dev/null 2>&1
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-                running=true
-            else
-                running=false
-            fi
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Creating Backup for [1mSABnzbd-${LOCAL_VERSION}[0m."
-            mv $sabnzbd_dir/SABnzbd $sabnzbd_dir/SABnzbd-Backup 2>&1
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Downloading and extracting [1mSABnzbd-${LATEST_VERSION}[0m."
-            SOURCE_URL=https://github.com/sabnzbd/sabnzbd/releases/download/$LATEST_VERSION/SABnzbd-$LATEST_VERSION-src.tar.gz
-            fetch -o $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz $SOURCE_URL
-            tar -xzf $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz -C $sabnzbd_dir >/dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                echo "[[1mSABnzbd[0m] [1;32m:[0m [1;31mError extracting SABnzbd-${LATEST_VERSION}[0m. Restoring previous version."
-                rm -rf $sabnzbd_dir/SABnzbd 2>&1
-                mv $sabnzbd_dir/SABnzbd-Backup $sabnzbd_dir/SABnzbd 2>&1
-            else
-                rm -r $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz
-                mv $sabnzbd_dir/SABnzbd-$LATEST_VERSION $sabnzbd_dir/SABnzbd
-                chown -R $sabnzbd_user:$sabnzbd_group $sabnzbd_dir/SABnzbd
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-            fi
-            if $running; then
-                echo ""
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Starting SABnzbd."
-                service ${name} start >/dev/null 2>&1
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-            fi
-        fi
-    else
-        echo ""
-        echo "[[1mSABnzbd[0m] [1;32m:[0m Unable to determine current version. Please run '[1mservice" ${name} "reinstall[0m' instead."
-    fi
-    echo ""
-}
-
-sabnzbd_reinstall() {
-    PATH=${PATH}:/usr/local/bin:/usr/local/sbin
-    LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/sabnzbd/sabnzbd/releases/latest)
-    LATEST_VERSION=$(echo $LATEST_RELEASE | sed 's/.*"tag_name":[^"]*"\([^"]*\)".*/\1/')
-
-    echo ""
-    echo "[[1mSABnzbd[0m] [1;32m:[0m Reinstalling [1mSABnzbd-${LATEST_VERSION}[0m."
-    echo "[[1mSABnzbd[0m] [1;32m:[0m [1;31mWARNING! This will destroy any existing install and cannot be reverted.[0m"
-    read -r -p "[[1mSABnzbd[0m] [1;32m:[0m Are you sure you wish to continue ? [1m[y/N][0m: " response
-    case "$response" in
-        [yY][eE][sS]|[yY]) 
-            if [ -n "$rc_pid" ]; then
-                echo ""
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Stopping SABnzbd."
-                service ${name} stop >/dev/null 2>&1
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-                running=true
-            else
-                running=false
-            fi
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Downloading and extracting [1mSABnzbd-${LATEST_VERSION}[0m."
-            SOURCE_URL=https://github.com/sabnzbd/sabnzbd/releases/download/$LATEST_VERSION/SABnzbd-$LATEST_VERSION-src.tar.gz
-            fetch -o $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz $SOURCE_URL
-            tar -xzf $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz -C $sabnzbd_dir >/dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                echo "[[1mSABnzbd[0m] [1;32m:[0m [1;31mError extracting SABnzbd-${LATEST_VERSION}[0m. Please install manually."
-            else
-                rm -r $sabnzbd_dir/SABnzbd-$LATEST_VERSION.tar.gz $sabnzbd_dir/SABnzbd
-                mv $sabnzbd_dir/SABnzbd-$LATEST_VERSION $sabnzbd_dir/SABnzbd
-                chown -R $sabnzbd_user:$sabnzbd_group $sabnzbd_dir/SABnzbd
-                echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-                if $running; then
-                    echo ""
-                    echo "[[1mSABnzbd[0m] [1;32m:[0m Starting SABnzbd."
-                    run_rc_command start >/dev/null 2>&1
-                    echo "[[1mSABnzbd[0m] [1;32m:[0m Done."
-                fi
-            fi
-        ;;
-        *)
-            echo ""
-            echo "[[1mSABnzbd[0m] [1;32m:[0m Aborting reinstall."
-        ;;
-    esac
-    echo ""
+sabnzbd_prestart()
+{
+	PATH=${PATH}:/usr/local/bin:/usr/local/sbin
+	export LC_CTYPE="en_US.UTF-8"
+	for sabdir in ${sabnzbd_conf_dir} ${pidfile%/*}; do
+		if [ ! -d "${sabdir}" ]; then
+			install -d -o ${sabnzbd_user} -g ${sabnzbd_group} ${sabdir}
+		fi
+	done
 }
 
 run_rc_command "$1"
