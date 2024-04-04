@@ -1,7 +1,9 @@
 #!/bin/sh
 #
-#    Test script
+# SABnzbd update script
+# Usage: ./updatesab.sh
 #
+# Change PARENTPATH to directory where sabnzbd directorty is locacated.
 
 VERSION="0.1"
 SCRIPTNAME=$(echo $0 | sed "s|^\./||")
