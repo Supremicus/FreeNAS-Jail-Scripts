@@ -3,9 +3,9 @@
 # SABnzbd update script
 # Usage: ./updatesab.sh
 #
-# Change PARENTPATH to directory where sabnzbd directorty is located.
+# Change PARENTPATH to directory where sabnzbd directory is located.
 
-VERSION="0.1"
+VERSION="0.2"
 SCRIPTNAME=$(echo $0 | sed "s|^\./||")
 PARENTPATH="/usr/local/share"
 
@@ -92,7 +92,7 @@ update_sab() {
         fi
 
         echo -n "[[1m$SCRIPTNAME[0m] [1;32m:[0m Stopping SABnzbd..."
-        service sabnzbd stop 2>&1
+        service sabnzbd stop >/dev/null
         echo " [1;32mDone[0m."
 
         echo -n "[[1m$SCRIPTNAME[0m] [1;32m:[0m Moving current SABnzbd installation to backup location..."
@@ -110,14 +110,11 @@ update_sab() {
             echo " [1;32mDone[0m."
         else
             echo " [1;32mDone[0m."
-            echo -n "[[1m$SCRIPTNAME[0m] [1;32m:[0m Updating / Installing python modules from [1mrequirements.txt[0m, this may take awhile..."
-            python3 -m pip install -r $PARENTPATH/sabnzbd/requirements.txt >/dev/null 2>&1 & progress
-            echo " [1;32mDone[0m."
         fi
         rm $PARENTPATH/SABnzbd-$LATEST_VERSION.tar.gz
 
         echo -n "[[1m$SCRIPTNAME[0m] [1;32m:[0m Starting SABnzbd..."
-        service sabnzbd start 2>&1
+        service sabnzbd start >/dev/null
         echo " [1;32mDone[0m."
 
     else
